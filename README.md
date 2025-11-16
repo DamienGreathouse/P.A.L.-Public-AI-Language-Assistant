@@ -110,6 +110,9 @@ All services are exposed only via **HTTPS** on two public domains:
 git clone https://github.com/DamienGreathouse/P.A.L.-Public-AI-Language-Assistant.git
 cd P.A.L.-Public-AI-Language-Assistant
 ```
+```bash
+cp nvidia-docker-compose.yaml docker-compose.yaml     # Copy correct docker-compose file use the amd file for AMD systems
+```
 
 > The repo already contains a ready‑to‑run `docker-compose.yml`.
 
