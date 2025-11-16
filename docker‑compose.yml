@@ -111,7 +111,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     environment:
-      - TZ==America/Los_Angeles   # <-- Pacific time (handles DST automatically)
+      - TZ=America/Los_Angeles   # <-- Pacific time (handles DST automatically)
     depends_on:
       - open-webui
       - n8n
