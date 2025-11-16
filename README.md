@@ -1,6 +1,8 @@
 # P.A.L. Public Ai Language Assistant
 Deliver a lightweight, self‑hostable, privacy‑first language model stack that any community, small business or individual can run locally and keep 100 % of the data on their own hardware.
 
+![P.A.L. Public AI Language Assistant.](https://raw.githubusercontent.com/DamienGreathouse/P.A.L.-Public-AI-Language-Assistant/refs/heads/main/Public-AI-Language-Assistant.png)
+
 ## **Description**  
 **P.A.L.** is a modular, open‑source AI platform that lets anyone run a state‑of‑the‑art language model on their own hardware—no cloud, no data‑outs.  Built on top of Ollama, pgVector, n8n, and Open‑WebUI, the stack is packaged in a single Docker‑Compose file that you can **easily update** (pull a new image, rebuild a Dockerfile, or switch tags) and the system will automatically restart with the new version.  It is accessed through a sleek Caddy‑based reverse proxy and can be refreshed with a single `docker compose pull` + `docker compose up -d`.  P.A.L. empowers local knowledge workers, educators, and hobbyists to have a private, always‑on AI assistant that respects their privacy while staying cutting‑edge.
 
