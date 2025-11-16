@@ -1,0 +1,38 @@
+# Ollama container
+OLLAMA_PORT=11434        # Port to expose
+
+# Domains
+PAL_DOMAIN="pal.example.com"
+AUTOMATION_DOMAIN="automation.example.com"
+LETSENCRYPT_EMAIL="jdoe@example.com"
+
+# Open‑WebUI container
+OLLAMA_BASE_URL=http://ollama:${OLLAMA_PORT}
+
+# POSTGRES pgVector
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=supersecret
+POSTGRES_DB=knowledge
+PGDATA=/var/lib/postgresql/data/pgdata
+POSTGRES_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
+
+# Microsoft SSO for OPen-WebUI
+MICROSOFT_CLIENT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+MICROSOFT_CLIENT_SECRET=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+MICROSOFT_CLIENT_TENANT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+MICROSOFT_REDIRECT_URI=https://ai.ireadgood.com/oauth/microsoft/callback
+OPENID_PROVIDER_URL=https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2.0/
+
+# Enable the OneDrive integration feature globally
+ENABLE_ONEDRIVE_INTEGRATION=true
+
+# --- Business & SharePoint Configuration ---
+
+# The Application (client) ID from your Business App Registration
+ONEDRIVE_CLIENT_ID_BUSINESS="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+# The Directory (tenant) ID from your Business App Registration
+ONEDRIVE_SHAREPOINT_TENANT_ID="yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"
+
+# The root URL of your SharePoint instance
+ONEDRIVE_SHAREPOINT_URL="https://your-tenant-name.sharepoint.com"# Enable the OneDrive integration feature globally
