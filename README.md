@@ -114,7 +114,7 @@ cd P.A.L.-Public-AI-Language-Assistant
 ### 2️⃣  Edit `.env`
 
 ```bash
-cp .env.example .env          # Copy the Template
+cp env.example .env          # Copy the Template
 ```
 ```bash
 # Ollama container
