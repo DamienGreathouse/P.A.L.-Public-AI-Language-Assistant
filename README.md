@@ -105,7 +105,7 @@ All services are exposed only via **HTTPS** on two public domains:
 ### 1️⃣  Clone & Prepare
 
 ```bash
-git clone https://github.com/DamienGreathouse/DGX-AI-Stack.git
+git clone https://github.com/DamienGreathouse//P.A.L.-Public-AI-Language-Assistant.git
 cd DGX-AI-Stack
 ```
 
