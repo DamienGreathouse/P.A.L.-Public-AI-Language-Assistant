@@ -105,7 +105,7 @@ All services are exposed only via **HTTPS** on two public domains:
 
 ```bash
 git clone https://github.com/DamienGreathouse/P.A.L.-Public-AI-Language-Assistant.git
-cd DGX-AI-Stack
+cd P.A.L.-Public-AI-Language-Assistant
 ```
 
 > The repo already contains a ready‑to‑run `docker-compose.yml`.
