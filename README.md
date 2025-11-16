@@ -13,7 +13,7 @@ Deliver a lightweight, self‑hostable, privacy‑first language model stack tha
 P.A.L. is engineered with *security‑by‑design* in mind. <br/><br/>
 • **Local data residency** – all user data stays on the host; there are no outbound network calls to cloud providers that could expose your conversations.  
 • **Network isolation** – the Postgres/pgVector database is confined to a private `dbnet` bridge that only the n8n orchestrator can reach, effectively cutting off attackers who compromise the public web tier from accessing the data layer.  
-• **Minimal attack surface** – the only services exposed to the internet are the reverse‑proxy (Caddy) and the n8n and Open‑WebUI UIs. IP filter is implemented in Caddy file.
+• **Minimal attack surface** – the only services exposed to the internet are the reverse‑proxy (Caddy) and the n8n and Open‑WebUI UIs. IP filter is implemented in Caddy file.<br/>
 • **Immutable image updates** – by pinning tags in the Compose file and using a lightweight updater (e.g., Watchtower or a cron job), you avoid “unknown‑source” updates and retain full control over which releases are deployed.  
 • **Transparent provenance** – every component is open‑source and publicly audited; pull requests and vulnerability scans are part of the normal development cycle, so you can verify the integrity of the code before you run it.  
 • **Runtime patching** – optional post‑restart commands (e.g., `apt‑get upgrade –y`) ensure that the underlying OS packages stay current without needing a full rebuild, protecting against known CVEs.  
