@@ -37,7 +37,7 @@ Together, these measures give you a **secure, self‑contained AI assistant** th
 
 ## What it is  
 
-iReadGood is a **single‑file Docker‑Compose** stack that gives you:
+P.A.L. Public Ai Language Assistant is a **single‑file Docker‑Compose** stack that gives you:
 
 | Service | Purpose |
 |---------|---------|
@@ -82,7 +82,8 @@ All services are exposed only via **HTTPS** on two public domains:
                       └─────────────────┘  └─────────────────────┘
 ```
 
-* All services share the `web` bridge network – they talk to each other by container name (`open-webui`, `n8n`, `ollama`).  
+* All services share the `web` bridge network – they talk to each other by container name (`open-webui`, `n8n`, `ollama`).
+* Vector database is isolated to n8n dbNet network, to further secure RAG data.
 * Caddy reads the `Caddyfile` for routing rules and Let’s Encrypt settings.  
 * The stack uses **bind mounts** for data persistence, so a container restart or image upgrade never wipes your settings or models.
 
