@@ -1,0 +1,43 @@
+{
+    # Global options – used by Let’s Encrypt
+    email ${env:LETSENCRYPT_EMAIL}
+}
+
+# ---------------------------------------------------------
+# 1️⃣  Matcher that *only matches* the IPs you want to allow
+# ---------------------------------------------------------
+@allowed {
+    remote_ip 203.0.113.5 203.0.113.6 192.168.1.0/24
+}
+
+# ---------------------------------------------------------
+# 2️⃣  Domain that hosts Open‑WebUI
+# ---------------------------------------------------------
+${env:PAL_DOMAIN} {
+    # 2.1  Only allow the IPs in @allowed
+    route @allowed {
+        reverse_proxy open-webui:8080
+    }
+
+    # 2.2  Everything else → 403
+    route {
+        respond 403 {
+            body "Forbidden – IP not on whitelist."
+        }
+    }
+}
+
+# ---------------------------------------------------------
+# 3️⃣  Domain that hosts n8n
+# ---------------------------------------------------------
+${env:AUTOMATION_DOMAIN} {
+    route @allowed {
+        reverse_proxy n8n:5678
+    }
+
+    route {
+        respond 403 {
+            body "Forbidden – IP not on whitelist."
+        }
+    }
+}
