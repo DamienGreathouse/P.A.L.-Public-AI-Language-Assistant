@@ -1,13 +1,13 @@
 # Ollama container
-OLLAMA_PORT=11434        # Port to expose
+OLLAMA_PORT=11434
 
 # Domains
-PAL_DOMAIN="pal.example.com"
-AUTOMATION_DOMAIN="automation.example.com"
-LETSENCRYPT_EMAIL="jdoe@example.com"
+PAL_DOMAIN=pal.example.com
+AUTOMATION_DOMAIN=automation.example.com
+LETSENCRYPT_EMAIL=jdoe@example.com
 
 # Open‑WebUI container
-OLLAMA_BASE_URL=http://ollama:${OLLAMA_PORT}
+OLLAMA_BASE_URL=http://ollama:11434
 
 # POSTGRES pgVector
 POSTGRES_USER=postgres
