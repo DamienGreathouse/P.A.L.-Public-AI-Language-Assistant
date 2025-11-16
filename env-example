@@ -14,7 +14,6 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=supersecret
 POSTGRES_DB=knowledge
 PGDATA=/var/lib/postgresql/data/pgdata
-POSTGRES_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
 
 # Microsoft SSO for OPen-WebUI
 MICROSOFT_CLIENT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -29,10 +28,10 @@ ENABLE_ONEDRIVE_INTEGRATION=true
 # --- Business & SharePoint Configuration ---
 
 # The Application (client) ID from your Business App Registration
-ONEDRIVE_CLIENT_ID_BUSINESS="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+ONEDRIVE_CLIENT_ID_BUSINESS=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 # The Directory (tenant) ID from your Business App Registration
-ONEDRIVE_SHAREPOINT_TENANT_ID="yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"
+ONEDRIVE_SHAREPOINT_TENANT_ID=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 
 # The root URL of your SharePoint instance
-ONEDRIVE_SHAREPOINT_URL="https://your-tenant-name.sharepoint.com"# Enable the OneDrive integration feature globally
+ONEDRIVE_SHAREPOINT_URL=https://your-tenant-name.sharepoint.com
