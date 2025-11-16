@@ -293,7 +293,7 @@ Restore by unpacking to the same paths and running `docker compose up -d` again.
 - **Ollama** – © Ollama, Inc. (MIT).  
 - **Caddy** – © Caddy Server (Apache‑2.0).
 - **pgvector** – © pgvector Authors (MIT).
-- **This stack** – © 2025 iReadGood Team (MIT).  
+- **This stack** – © 2025 Damien Greathouse (MIT).  
 
 Feel free to fork, improve, and share! 🚀
 
