@@ -46,6 +46,7 @@ P.A.L. Public Ai Language Assistant is a **single‑file Docker‑Compose** stac
 | **Ollama** | Local LLM runtime (GPU‑enabled). |
 | **Caddy** | Reverse‑proxy that automatically obtains Let’s Encrypt TLS certificates and redirects all HTTP → HTTPS. |
 | **pgvector** | PGvector‑enabled PostgreSQL. (GPU‑enabled) |
+| **searXNG** | web search for Open WebUI and n8n |
 
 All services are exposed only via **HTTPS** on two public domains:
 
@@ -73,13 +74,13 @@ All services are exposed only via **HTTPS** on two public domains:
           └───────────────────────┘       └─────────────────────────┘
                      ▲                                 ▲     ▲
                      │                                 │     │
-                     └───────┬─────────────────────────┘     │
-                             │                               │
-                             ▼                               ▼                     
-                      ┌─────────────────┐  ┌─────────────────────┐
-                      │      ollama     │  │  postgres (pgvector)│
-                      │   (11434, GPU)  │  │     (5432)          │
-                      └─────────────────┘  └─────────────────────┘
+             │───────────────┬─────────────────────────┘     │
+             │               │                               │
+             ▼               ▼                               ▼                     
+┌─────────────────┐   ┌─────────────────┐  ┌─────────────────────┐
+│     searXNG     │   │      ollama     │  │  postgres (pgvector)│
+│   (WEbSearch    │   │   (11434, GPU)  │  │     (5432)          │
+└─────────────────┘   └─────────────────┘  └─────────────────────┘
 ```
 
 * All services share the `web` bridge network – they talk to each other by container name (`open-webui`, `n8n`, `ollama`).
