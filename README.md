@@ -45,7 +45,7 @@ iReadGood is a **single‑file Docker‑Compose** stack that gives you:
 | **n8n** | Low‑code workflow automation engine. |
 | **Ollama** | Local LLM runtime (GPU‑enabled). |
 | **Caddy** | Reverse‑proxy that automatically obtains Let’s Encrypt TLS certificates and redirects all HTTP → HTTPS. |
-| **pgvector** | PGvector‑enabled PostgreSQL. |
+| **pgvector** | PGvector‑enabled PostgreSQL. (GPU‑enabled) |
 
 All services are exposed only via **HTTPS** on two public domains:
 
