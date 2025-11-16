@@ -115,7 +115,8 @@ cd P.A.L.-Public-AI-Language-Assistant
 
 ```bash
 cp .env.example .env          # Copy the Template
-
+```
+```bash
 # Ollama container
 OLLAMA_PORT=11434        # Port to expose
 
