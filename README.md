@@ -291,7 +291,8 @@ Restore by unpacking to the same paths and running `docker compose up -d` again.
 - **Open WebUI** – © Open WebUI Authors (MIT).  
 - **n8n** – © n8n.io (MIT).  
 - **Ollama** – © Ollama, Inc. (MIT).  
-- **Caddy** – © Caddy Server (Apache‑2.0).  
+- **Caddy** – © Caddy Server (Apache‑2.0).
+- **pgvector** – © pgvector Authors (MIT).
 - **This stack** – © 2025 iReadGood Team (MIT).  
 
 Feel free to fork, improve, and share! 🚀
