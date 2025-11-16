@@ -43,6 +43,15 @@ services:
       - "8080"
     environment:
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - MICROSOFT_CLIENT_ID=${MICROSOFT_CLIENT_ID}                        # Microsoft OAuth client ID
+      - MICROSOFT_CLIENT_SECRET=${MICROSOFT_CLIENT_SECRET}                # Microsoft OAuth client secret
+      - MICROSOFT_CLIENT_TENANT_ID=${MICROSOFT_CLIENT_TENANT_ID}          # Microsoft tenant ID - use 9188040d-6c67-4c5b-b112-36a304b66dad for personal accounts
+      - MICROSOFT_REDIRECT_URI=${MICROSOFT_REDIRECT_URI}                  # The redirect URI configured in your Microsoft OAuth application. This must be set to <open-webui>/oauth/microsoft/callback
+      - OPENID_PROVIDER_URL=${OPENID_PROVIDER_URL}                        # Must be set for logout to work properly.
+      - ENABLE_ONEDRIVE_INTEGRATION=${ENABLE_ONEDRIVE_INTEGRATION}        # Enable the OneDrive integration feature globally
+      - ONEDRIVE_CLIENT_ID_BUSINESS=${ONEDRIVE_CLIENT_ID_BUSINESS}        # The Application (client) ID from your Business App Registration
+      - ONEDRIVE_SHAREPOINT_TENANT_ID=${ONEDRIVE_SHAREPOINT_TENANT_ID}    # The Directory (tenant) ID from your Business App Registration
+      - ONEDRIVE_SHAREPOINT_URL=${ONEDRIVE_SHAREPOINT_URL}                # The root URL of your SharePoint instance
     depends_on:
       - ollama
     restart: unless-stopped
