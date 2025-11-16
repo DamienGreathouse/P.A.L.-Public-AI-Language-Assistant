@@ -9,9 +9,7 @@ Deliver a lightweight, self‑hostable, privacy‑first language model stack tha
 2. **Easy to update, self‑patch** – a simple Docker pull and compose‑up keeps the stack secure without manual edits.  
 3. **Community‑friendly** – all code is on GitHub, all docs are Markdown, and the Docker stack can be pulled and launched in under five minutes. 
 
-### Security benefits
-
-**Security at the core**  
+### **Security at the core**  
 P.A.L. is engineered with *security‑by‑design* in mind.  
 • **Local data residency** – all user data stays on the host; there are no outbound network calls to cloud providers that could expose your conversations.  
 • **Network isolation** – the Postgres/pgVector database is confined to a private `dbnet` bridge that only the n8n orchestrator can reach, effectively cutting off attackers who compromise the public web tier from accessing the data layer.  
