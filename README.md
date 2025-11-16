@@ -105,7 +105,7 @@ All services are exposed only via **HTTPS** on two public domains:
 ### 1️⃣  Clone & Prepare
 
 ```bash
-git clone https://github.com/DamienGreathouse//P.A.L.-Public-AI-Language-Assistant.git
+git clone https://github.com/DamienGreathouse/P.A.L.-Public-AI-Language-Assistant.git
 cd DGX-AI-Stack
 ```
 
@@ -165,7 +165,8 @@ mkdir -p \
   openwebui_logs \
   n8n_data \
   caddy_data \
-  caddy_config
+  caddy_config \
+  pg_data
 ```
 
 ### 4️⃣  Start the stack
@@ -230,6 +231,7 @@ ${AUTOMATION_DOMAIN} {
 | n8n | `./n8n_data` | Workflow data, credentials | Host dir |
 | Caddy | `./caddy_data` | TLS certs, Caddy logs | Host dir |
 | Caddy | `./caddy_config` | Optional Caddy overrides | Host dir |
+| pgvector | `./pg_data` | vector database files | Host dir |
 
 **Backup tip** – back up the host directories, not the containers:
 
@@ -240,7 +242,8 @@ tar czf backup-$(date +%F).tar.gz \
   openwebui_logs/ \
   n8n_data/ \
   caddy_data/ \
-  caddy_config/
+  caddy_config/ \
+  pg_data/
 ```
 
 Restore by unpacking to the same paths and running `docker compose up -d` again.
