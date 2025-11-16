@@ -79,7 +79,7 @@ All services are exposed only via **HTTPS** on two public domains:
                ▼             ▼                               ▼                     
 ┌─────────────────┐   ┌─────────────────┐  ┌─────────────────────┐
 │     searXNG     │   │      ollama     │  │  postgres (pgvector)│
-│   (WEbSearch    │   │   (11434, GPU)  │  │     (5432)          │
+│   (WEbSearch)   │   │   (11434, GPU)  │  │     (5432)          │
 └─────────────────┘   └─────────────────┘  └─────────────────────┘
 ```
 
