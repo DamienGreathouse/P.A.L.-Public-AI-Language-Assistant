@@ -44,11 +44,11 @@ P.A.L. Public Ai Language Assistant is a **single‑file Docker‑Compose** stac
 | Service | Purpose |
 |---------|---------|
 | **Open WebUI** | Front‑end for the Ollama LLM – chat, code, docs, etc. |
-| **n8n** | Low‑code workflow automation engine. |
-| **Ollama** | Local LLM runtime (GPU‑enabled). |
+| **vLLM** | Local LLM runtime (GPU‑enabled). |
 | **Caddy** | Reverse‑proxy that automatically obtains Let’s Encrypt TLS certificates and redirects all HTTP → HTTPS. |
 | **pgvector** | PGvector‑enabled PostgreSQL. (GPU‑enabled) |
 | **searXNG** | web search for Open WebUI and n8n |
+| **Hugging face** | downloading models and maintaining a single model cache to save space |
 
 All services are exposed only via **HTTPS** on two public domains:
 
@@ -103,6 +103,30 @@ All services are exposed only via **HTTPS** on two public domains:
 
 > **Hardware** – GPU‑accelerated container for Ollama is optional.  
 > If you don’t have an NVIDIA GPU, just remove the `device_requests` block in `docker‑compose.yml` (or keep it; Docker will ignore it if no GPU is present).
+
+# Setting Up Hugging Face on a DGX Spark
+
+This guide walks through installing and configuring the Hugging Face CLI (`hf`) on a DGX Spark, pointing the model cache at a dedicated directory, and downloading a model.
+
+- **User account:** `itadmin`
+- **Hugging Face home:** `/opt/llm-models/huggingface`
+
+---
+
+# Point Hugging Face at that directory (environment variables)
+Edit ~/.bashrc and add (or correct) the following lines:
+
+export HF_HOME=/opt/llm-models/huggingface
+export HF_HUB_CACHE=/opt/llm-models/huggingface
+export HF_DATASETS_CACHE=/opt/llm-models/huggingface
+export PATH="$HOME/.local/bin:$PATH"
+
+## 1. Create the Hugging Face directory
+
+```bash
+sudo mkdir -p /opt/llm-models/huggingface
+sudo chmod 755 /opt/llm-models/huggingface
+sudo chown -R itadmin:itadmin /opt/llm-models/huggingface
 
 ### 1️⃣  Clone & Prepare
 
