@@ -141,32 +141,49 @@ cp env.example .env
 Edit `.env` and set the values for your environment:
 
 ```bash
-# --- Required: vLLM / Open WebUI ---
-# Shared API key used by vLLM (main + embed) and by Open WebUI.
-VLLM_API_KEY=supersecret
+# ── VLLM / Open WebUI API Key (shared) ──
+# A strong, random string shared by the vLLM containers and Open WebUI.
+# Generate one with:  openssl rand -base64 32
+VLLM_API_KEY=REPLACE_WITH_STRONG_RANDOM_STRING
 
-# Caddy / Cloudflare — token with DNS edit + Zone:Settings:Read permissions.
-CLOUDFLARE_API_TOKEN=your_cloudflare_api_token
+# ── Caddy / Cloudflare ──
+# Cloudflare API token with DNS edit + Zone:Settings:Read permissions.
+# Format: cfut_...  — create at https://dash.cloudflare.com/profile/api-tokens
+CLOUDFLARE_API_TOKEN=REPLACE_WITH_CLOUDFLARE_API_TOKEN
 
-# Open WebUI
+# ── Open WebUI ──
+# A strong, random secret used to sign Open WebUI sessions.
+# Generate one with:  openssl rand -base64 32
+WEBUI_SECRET_KEY=REPLACE_WITH_STRONG_RANDOM_STRING
+
+# Your public HTTPS domain (used by the Caddyfile and by Open WebUI)
 OPEN_WEBUI_BASE_URL=https://pal.example.com
-WEBUI_SECRET_KEY=change-me-to-a-long-random-string
 
-# Public domain (used by the Caddyfile)
-PAL_DOMAIN="pal.example.com"
+# ── Microsoft Entra (SSO) ──
+# Application (client) ID from your Microsoft Entra App Registration.
+MICROSOFT_CLIENT_ID=REPLACE_WITH_ENTRA_CLIENT_ID
 
-# --- Microsoft SSO for Open WebUI ---
-MICROSOFT_CLIENT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-MICROSOFT_CLIENT_SECRET=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-MICROSOFT_CLIENT_TENANT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# Application secret from the same registration (use a fresh secret, not a reused one).
+MICROSOFT_CLIENT_SECRET=REPLACE_WITH_ENTRA_CLIENT_SECRET
+
+# Directory (tenant) ID.
+MICROSOFT_CLIENT_TENANT_ID=REPLACE_WITH_ENTRA_TENANT_ID
+
+# Redirect URI must match the value registered in Entra App Registration.
 MICROSOFT_REDIRECT_URI=https://pal.example.com/oauth/microsoft/callback
-OPENID_PROVIDER_URL=https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2.0/
 
-# --- OneDrive / SharePoint integration ---
-ENABLE_ONEDRIVE_INTEGRATION=true
-ONEDRIVE_CLIENT_ID_BUSINESS="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-ONEDRIVE_SHAREPOINT_TENANT_ID="yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"
-ONEDRIVE_SHAREPOINT_URL="https://your-tenant-name.sharepoint.com"
+# OIDC discovery endpoint, using your tenant ID.
+OPENID_PROVIDER_URL=https://login.microsoftonline.com/REPLACE_WITH_ENTRA_TENANT_ID/v2.0/.well-known/openid-configuration
+
+# ── OneDrive / SharePoint ──
+# Application (client) ID from your Business App Registration.
+ONEDRIVE_CLIENT_ID_BUSINESS=REPLACE_WITH_BUSINESS_CLIENT_ID
+
+# Directory (tenant) ID of the SharePoint/OneDrive tenant.
+ONEDRIVE_SHAREPOINT_TENANT_ID=REPLACE_WITH_SHAREPOINT_TENANT_ID
+
+# Root URL of your SharePoint instance.
+ONEDRIVE_SHAREPOINT_URL=https://your-tenant-name.sharepoint.com
 ```
 
 > **Note:** The vLLM containers, Open WebUI's OpenAI backend, and the embedding client all use the **same** `VLLM_API_KEY`.
