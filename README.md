@@ -78,8 +78,8 @@ All vLLM containers share one Hugging Face cache mounted from `/opt/llm-models/h
                └───────┬───────┘
                        ▼
                ┌───────────────┐
-               │  open-webui    │  ghcr.io/open-webui/open-webui:main
-               │  (named volume)│
+               │ open-webui    │  ghcr.io/open-webui/open-webui:main
+               │ (named volume)│
                └──────┬────────┘
        ┌───────────┬──┴───────────┬──────────────┐
        ▼           ▼              ▼              ▼
