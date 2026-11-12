@@ -1,6 +1,3 @@
-Below is the updated README, rewritten to match your new `docker-compose.yml`. The biggest structural changes: **Ollama / n8n / pgvector are gone**, replaced by **three vLLM containers** (main model, embeddings, and Gemma), plus **Kokoro (TTS)** and **Docling (document parsing)**, with **Caddy now using Cloudflare** for TLS instead of Let's Encrypt.
-
-```markdown
 # P.A.L. Public AI Language Assistant
 
 Deliver a lightweight, self-hostable, privacy-first language model stack that any community, small business, or individual can run locally and keep 100% of the data on their own hardware.
