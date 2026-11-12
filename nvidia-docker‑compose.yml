@@ -1,118 +1,276 @@
-# docker-compose.yml
-version: "3.9"
-
-# ------------------------------------------------------------------
-#   All services share a single Docker network called "web"
-# ------------------------------------------------------------------
-networks:
-  web:
-    driver: bridge
-  dbnet:
-    driver: bridge
-
-# ------------------------------------------------------------------
-#   Backend services
-# ------------------------------------------------------------------
 services:
-  ollama:
-    image: ollama/ollama:latest            # pin a tag if you care about stability
-    container_name: ollama
-    env_file:
-      - .env
-    ports:
-      - "${OLLAMA_PORT}:${OLLAMA_PORT}"
-    volumes:
-      - ./ollama_models:/root/.ollama
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm
     restart: unless-stopped
-    device_requests:
-      - driver: nvidia
-        count: all
-        capabilities: [gpu]
-    networks:
-      - web
-
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: open-webui
-    env_file:
-      - .env
+    runtime: nvidia
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     volumes:
-      - ./openwebui_data:/app/data
-      - ./openwebui_logs:/app/logs
-    expose:            # no host port – Caddy will reach it over the network
-      - "8080"
+      - /opt/llm-models/huggingface:/root/.cache/huggingface
     environment:
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
-      - MICROSOFT_CLIENT_ID=${MICROSOFT_CLIENT_ID}                        # Microsoft OAuth client ID
-      - MICROSOFT_CLIENT_SECRET=${MICROSOFT_CLIENT_SECRET}                # Microsoft OAuth client secret
-      - MICROSOFT_CLIENT_TENANT_ID=${MICROSOFT_CLIENT_TENANT_ID}          # Microsoft tenant ID - use 9188040d-6c67-4c5b-b112-36a304b66dad for personal accounts
-      - MICROSOFT_REDIRECT_URI=${MICROSOFT_REDIRECT_URI}                  # The redirect URI configured in your Microsoft OAuth application. This must be set to <open-webui>/oauth/microsoft/callback
-      - OPENID_PROVIDER_URL=${OPENID_PROVIDER_URL}                        # Must be set for logout to work properly.
-      - ENABLE_ONEDRIVE_INTEGRATION=${ENABLE_ONEDRIVE_INTEGRATION}        # Enable the OneDrive integration feature globally
-      - ONEDRIVE_CLIENT_ID_BUSINESS=${ONEDRIVE_CLIENT_ID_BUSINESS}        # The Application (client) ID from your Business App Registration
-      - ONEDRIVE_SHAREPOINT_TENANT_ID=${ONEDRIVE_SHAREPOINT_TENANT_ID}    # The Directory (tenant) ID from your Business App Registration
-      - ONEDRIVE_SHAREPOINT_URL=${ONEDRIVE_SHAREPOINT_URL}                # The root URL of your SharePoint instance
-    depends_on:
-      - ollama
-    restart: unless-stopped
-    networks:
-      - web
-
-  n8n:
-    image: n8nio/n8n:latest
-    container_name: n8n
-    expose:
-      - "5678"
-    volumes:
-      - ./n8n_data:/home/node/.n8n
-    restart: unless-stopped
-    networks:
-      - web
-      - dbnet
-      
-  postgres:
-    image: pgvector/pgvector-pg15:latest
-    container_name: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      PGDATA: ${PGDATA}
-      PGVECTOR_ENABLE_GPU: 1
-      POSTGRES_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-    networks:
-      - dbnet
-    device_requests:
-      - driver: nvidia
-        count: all
-        capabilities: [gpu]
+      - HF_HOME=/root/.cache/huggingface
+      - HF_HUB_CACHE=/root/.cache/huggingface
+      - HF_DATASETS_CACHE=/root/.cache/huggingface
+      - NCCL_DEBUG=INFO
+      - VLLM_WORKER_MULTIPROC_METHOD=spawn
+    command: >
+      Inferact/Qwen3.8-27B-NVFP4
+      --served-model-name Inferact/Qwen3.8-27B-NVFP4
+      --speculative-config '{"method":"dflash","model":"incoai/Qwen3.8-27B-DFlash2","num_speculative_tokens":4}'
+      --tensor-parallel-size 1
+      --max-model-len 98304
+      --attention-backend FLASHINFER
+      --safetensors-load-strategy prefetch
+      --enable-chunked-prefill
+      --kv-cache-dtype fp8_e4m3
+      --max-num-batched-tokens 8192
+      --max-num-seqs 2
+      --enable-prefix-caching
+      --gpu-memory-utilization 0.38
+      --reasoning-parser qwen3
+      --enable-auto-tool-choice
+      --tool-call-parser qwen3_coder
+      --trust-remote-code
+      --port 8000
+      --api-key ${VLLM_API_KEY}
+      --return-tokens-as-token-ids
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD-SHELL", "curl -f --connect-timeout 4 --max-time 9 http://127.0.0.1:8000/health || exit 1"]
+      interval: 15s
+      timeout: 10s
       retries: 5
+      start_period: 1200s
 
-# ------------------------------------------------------------------
-#   Caddy reverse‑proxy
-# ------------------------------------------------------------------
+  vllm-embed:
+    image: vllm/vllm-openai:latest
+    container_name: vllm-embed
+    restart: unless-stopped
+    runtime: nvidia
+    ipc: host
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - /opt/llm-models/huggingface:/root/.cache/huggingface
+    environment:
+      - HF_HOME=/root/.cache/huggingface
+      - HF_HUB_CACHE=/root/.cache/huggingface
+      - NCCL_DEBUG=INFO
+    command: >
+      Qwen/Qwen3-Embedding-0.6B
+      --served-model-name Qwen3-Embedding-0.6B
+      --gpu-memory-utilization 0.08
+      --max-model-len 32768
+      --max-num-seqs 8
+      --port 8000
+      --api-key ${VLLM_API_KEY}
+      --disable-uvicorn-access-log
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f --connect-timeout 4 --max-time 9 http://127.0.0.1:8000/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 1200s
+  vllm-gemma-4:
+    image: vllm/vllm-openai:latest
+    depends_on:
+      vllm:
+        condition: service_healthy
+    container_name: vllm-gemma-4
+    restart: unless-stopped
+    runtime: nvidia
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - /opt/llm-models/huggingface:/root/.cache/huggingface
+    environment:
+      - HF_HOME=/root/.cache/huggingface
+      - HF_HUB_CACHE=/root/.cache/huggingface
+      - HF_DATASETS_CACHE=/root/.cache/huggingface
+      - NCCL_DEBUG=INFO
+      - VLLM_WORKER_MULTIPROC_METHOD=spawn
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+    command: >
+      nvidia/Gemma-4-26B-A4B-NVFP4
+      --served-model-name nvidia/Gemma-4-26B-A4B-NVFP4
+      --kv-cache-dtype fp8_e4m3
+      --max-num-batched-tokens 16384
+      --enable-chunked-prefill
+      --enable-prefix-caching
+      --no-async-scheduling
+      --max-num-seqs 2
+      --max-model-len 32768
+      --gpu-memory-utilization 0.30
+      --limit-mm-per-prompt '{"image":0,"audio":0,"video":0}'
+      --reasoning-parser gemma4
+      --enable-auto-tool-choice
+      --tool-call-parser gemma4
+      --trust-remote-code
+      --speculative-config '{"method":"mtp","model":"google/gemma-4-26B-A4B-it-assistant","num_speculative_tokens":4}'
+      --port 8000
+      --api-key ${VLLM_API_KEY}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f --connect-timeout 4 --max-time 9 http://127.0.0.1:8000/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 1200s
+
+  kokoro-fastapi:
+    image: ghcr.io/remsky/kokoro-fastapi-gpu:latest
+    container_name: kokoro-fastapi
+    restart: unless-stopped
+    runtime: nvidia
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - USE_GPU=true
+      - DEVICE=cuda
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f --connect-timeout 4 --max-time 9 http://127.0.0.1:8880/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    volumes:
+      - ./searxng:/etc/searxng
+    environment:
+      - SEARXNG_CONTACT_URL=mailto:itadmin@yourdomain.com
   caddy:
-    image: caddy:2.6.4-alpine            # example pin – use the tag you prefer
+    image: ghcr.io/caddybuilds/caddy-cloudflare:latest
     container_name: caddy
     restart: unless-stopped
-    networks:
-      - web
+    cap_add:
+      - NET_ADMIN
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - $PWD/site:/srv
       - caddy_data:/data
       - caddy_config:/config
     environment:
-      - TZ=America/Los_Angeles   # <-- Pacific time (handles DST automatically)
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+
+  docling-serve:
+    image: quay.io/docling-project/docling-serve:latest
+    container_name: docling-serve
+    ports:
+      - "5001:5001"
+    environment:
+      # Enable the web UI for testing
+      - DOCLING_SERVE_ENABLE_UI=true
+      # CRITICAL: Required for picture description with external LLM APIs
+      - DOCLING_SERVE_ENABLE_REMOTE_SERVICES=true
+      # Maximum wait time for sync requests (seconds) - increase for large documents
+      - DOCLING_SERVE_MAX_SYNC_WAIT=600
+      # Number of local engine workers
+      - DOCLING_SERVE_ENG_LOC_NUM_WORKERS=2
+      # CPU thread configuration
+      - OMP_NUM_THREADS=4
+      - MKL_NUM_THREADS=4
+      # IMPORTANT: Keep at 1 to avoid "Task Not Found" errors
+      - UVICORN_WORKERS=1
+    restart: unless-stopped
+    # For GPU support with NVIDIA:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
     depends_on:
-      - open-webui
-      - n8n
+      vllm:
+        condition: service_started
+    restart: unless-stopped
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      - OPENAI_API_BASE_URL=http://vllm:8000/v1
+      - OPENAI_API_KEY=${VLLM_API_KEY}
+      - OPEN_WEBUI_BASE_URL=${OPEN_WEBUI_BASE_URL}
+      - ENABLE_RAG_WEB_SEARCH=True
+      - RAG_WEB_SEARCH_ENGINE=searxng
+      - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>
+      - RAG_WEB_SEARCH_RESULT_COUNT=10
+      - AUDIO_TTS_ENGINE=openai
+      - AUDIO_TTS_OPENAI_API_BASE_URL=http://kokoro-fastapi:8880/v1
+      - AUDIO_TTS_OPENAI_API_KEY=not-needed
+      - AUDIO_TTS_MODEL=kokoro
+      - ENABLE_OAUTH=True
+      - OAUTH_MERGE_ACCOUNTS_BY_EMAIL=True
+      - ENABLE_LOGIN_FORM=False
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      - MICROSOFT_CLIENT_ID=${MICROSOFT_CLIENT_ID}
+      - MICROSOFT_CLIENT_SECRET=${MICROSOFT_CLIENT_SECRET}
+      - MICROSOFT_CLIENT_TENANT_ID=${MICROSOFT_CLIENT_TENANT_ID}
+      - MICROSOFT_REDIRECT_URI=${MICROSOFT_REDIRECT_URI}
+      - OPENID_PROVIDER_URL=${OPENID_PROVIDER_URL}
+      - OAUTH_PROVIDER_NAME=Microsoft
+      - OAUTH_SCOPES=openid email profile offline_access
+      - ENABLE_OAUTH_GROUP_MANAGEMENT=True
+      - OAUTH_GROUP_CLAIM=groups
+      - OAUTH_GROUP_NAMES=groups
+      - ENABLE_OAUTH_ROLE_MANAGEMENT=True
+      - OAUTH_ROLES_CLAIM=roles
+      - OAUTH_ALLOWED_ROLES=user
+      - OAUTH_ADMIN_ROLES=admin
+      - ENABLE_ONEDRIVE_INTEGRATION=true
+      - ONEDRIVE_CLIENT_ID_BUSINESS=${ONEDRIVE_CLIENT_ID_BUSINESS}
+      - ONEDRIVE_SHAREPOINT_TENANT_ID=${ONEDRIVE_SHAREPOINT_TENANT_ID}
+      - ONEDRIVE_SHAREPOINT_URL=${ONEDRIVE_SHAREPOINT_URL}
+      # Embedding — points at the new vLLM embedding container
+      - RAG_EMBEDDING_ENGINE=openai
+      - RAG_EMBEDDING_MODEL=Qwen3-Embedding-0.6B
+      - RAG_EMBEDDING_API_BASE_URL=http://vllm-embed:8000/v1
+      - RAG_EMBEDDING_API_KEY=${VLLM_API_KEY}
+      # Docling parser — points at your existing docling-serve container
+      - RAG_PARSER=docling
+      # (verify the Docling Serve URL field name in your :main build;
+      # the UI equivalent is Settings → RAG → Parser = Docling)
+      # Required for a searchable collection (you had these off per your
+      # privacy baseline — flip on at minimum for the group that needs it)
+
+volumes:
+  open-webui:
+    name: open-webui
+    external: true
+  caddy_data:
+    external: true
+  caddy_config:
