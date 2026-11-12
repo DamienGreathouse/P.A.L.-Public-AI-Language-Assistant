@@ -69,7 +69,7 @@ All vLLM containers share one Hugging Face cache mounted from `/opt/llm-models/h
 ## Architecture
 
 ```
-                    Public Internet
+                    Private Intanet
                         │ HTTPS (443) / HTTP (80)
                         ▼
                ┌───────────────┐
