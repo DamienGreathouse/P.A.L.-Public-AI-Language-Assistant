@@ -107,7 +107,7 @@ All services are exposed only via **HTTPS** on two public domains:
 # Setting Up Hugging Face on a DGX Spark
 
 This guide walks through installing and configuring the Hugging Face CLI (`hf`) on a DGX Spark, pointing the model cache at a dedicated directory, and downloading a model.
-
+---
 - **User account:** `itadmin`
 - **Hugging Face home:** `/opt/llm-models/huggingface`
 
