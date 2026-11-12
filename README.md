@@ -447,25 +447,3 @@ Restore by unpacking to the same paths and running `docker compose up -d` again.
 
 Feel free to fork, improve, and share! 🚀
 ```
-
-### What changed and why
-
-| Section | Change |
-|---|---|
-| **What It Is / Architecture** | Removed Ollama, n8n, pgvector. Added the three vLLM containers, Kokoro (TTS), and Docling (doc parsing). Rewrote the diagram for the new services and the shared model cache. |
-| **Security** | Replaced the dbnet/n8n isolation paragraph with the new reality: only Caddy is public, the main vLLM isn't exposed to the host. |
-| **Prerequisites** | Now requires an NVIDIA GPU runtime and Cloudflare-managed DNS (not a bare A-record + Let's Encrypt). Added the `docker volume create` step for the `external: true` volumes. |
-| **Getting Started** | `.env` now needs `VLLM_API_KEY`, `CLOUDFLARE_API_TOKEN`, `OPEN_WEBUI_BASE_URL`, `WEBUI_SECRET_KEY` (removed `OLLAMA_PORT`, `POSTGRES_*`, `LETSENCRYPT_EMAIL`, `OLLAMA_BASE_URL`). Step 3 now creates `searxng/` + the named volumes instead of the old bind-mount dirs. |
-| **Hugging Face Setup** | Noted that the host cache `/opt/llm-models/huggingface` is mounted as `/root/.cache/huggingface` inside containers, and listed the exact model repos vLLM consumes (including the DFlash/MTP speculative models). |
-| **Configuration** | Caddyfile is now Cloudflare-based (no Let's Encrypt `email` block). |
-| **Persistence & Backup** | Reflects named volumes for Open WebUI and Caddy, bind mounts for searXNG and the model cache; added named-volume backup commands. |
-| **Troubleshooting / Maintenance** | Added vLLM, Cloudflare, GPU-memory, named-volume, and Docling entries; removed Ollama/pgvector ones. |
-
-### A few things to confirm on your end (the compose was cut off at the bottom)
-
-1. **Networks** — the file ended at `volumes:`, so I didn't see any `networks:` block or `depends_on` networking. If your services use explicit `web`/`dbnet` networks, let me know and I'll reconcile the architecture note.
-2. **Domains** — I kept a single `PAL_DOMAIN` → Open WebUI since n8n is gone. If you still publish a second domain, tell me what it routes to.
-3. **The trailing `volumes:` block** was incomplete (`caddy_config:` had no value). I assumed all three are `external: true` named volumes; confirm and I'll adjust.
-4. **`vllm-embed` and `docling-serve` expose host ports** (`8000` and `5001`). If those should be private (only via Caddy), move them behind the proxy and I'll update the "attack surface" note.
-
-Want me to also generate a matching `env.example` file and a Cloudflare-style `Caddyfile` to go with this compose?
