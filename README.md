@@ -69,29 +69,16 @@ All vLLM containers share one Hugging Face cache mounted from `/opt/llm-models/h
 ## Architecture  
 
 ```
-┌───────────────────────────────────────────────────────────────┐
-│                      Public Internet                          │
-│  ┌─────┐  HTTPS  ┌─────────────────────┐  HTTPS  ┌─────┐      │
-│  │ 80  │────────►│      Caddy (proxy)  │────────►│ 443 │      │
-│  └─────┘         └─────────────────────┘         └─────┘      │
-└───────────────────────────────────────────────────────────────┘
-                     ▲                                 ▲
-                     │                                 │
-                     │                                 │
-                     ▼                                 ▼
-          ┌───────────────────────┐       ┌─────────────────────────┐
-          │  open‑webui (8080)    │       │        n8n (5678)       │
-          │                       │       │ (uses PGvector for RAG) │     
-          └───────────────────────┘       └─────────────────────────┘
-               ▲                                       ▲     ▲
-               │                                       │     │
-               │─────────────┬─────────────────────────┘     │
-               │             │                               │
-               ▼             ▼                               ▼                     
-┌─────────────────┐   ┌─────────────────┐  ┌─────────────────────┐
-│     searXNG     │   │      ollama     │  │  postgres (pgvector)│
-│(8888 WebSearch) │   │   (11434, GPU)  │  │     (5432)          │
-└─────────────────┘   └─────────────────┘  └─────────────────────┘
+Public Internet │ HTTPS (443) / HTTP (80) ▼ ┌───────────────┐ │ Caddy (CF) │ ghcr.io/caddybuilds/caddy-cloudflare │ reverse_proxy│ └───────┬───────┘ ▼ ┌───────────────┐ │ open-webui │ ghcr.io/open-webui/open-webui:main │ (named volume)│ └──────┬────────┘ ┌───────────┬──┴───────────┬──────────────┐ ▼ ▼ ▼ ▼
+┌────────┐ ┌─────────┐ ┌───────────┐ ┌──────────────┐
+│ vllm │ │ vllm- │ │ vllm- │ │ kokoro- │
+│ Qwen │ │ embed │ │ gemma-4 │ │ fastapi │
+│ :8000 │ │ :8000 │ │ :8000 │ │ :8880 (TTS) │
+└────────┘ └─────────┘ └───────────┘ └──────────────┘
+all three read models from /opt/llm-models/huggingface
+
+searxng (web search) ──────► open-webui (RAG web search)
+docling (:5001) ──────► open-webui (RAG document parser)
 ```
 
 * All services share the `web` bridge network – they talk to each other by container name (`open-webui`, `n8n`, `ollama`).
