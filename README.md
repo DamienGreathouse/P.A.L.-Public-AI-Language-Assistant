@@ -115,19 +115,19 @@ This guide walks through installing and configuring the Hugging Face CLI (`hf`) 
 
 # Point Hugging Face at that directory (environment variables)
 Edit ~/.bashrc and add (or correct) the following lines:
-
+```bash
 export HF_HOME=/opt/llm-models/huggingface
 export HF_HUB_CACHE=/opt/llm-models/huggingface
 export HF_DATASETS_CACHE=/opt/llm-models/huggingface
 export PATH="$HOME/.local/bin:$PATH"
-
+```
 ## 1. Create the Hugging Face directory
 
 ```bash
 sudo mkdir -p /opt/llm-models/huggingface
 sudo chmod 755 /opt/llm-models/huggingface
 sudo chown -R itadmin:itadmin /opt/llm-models/huggingface
-
+```
 ### 1️⃣  Clone & Prepare
 
 ```bash
