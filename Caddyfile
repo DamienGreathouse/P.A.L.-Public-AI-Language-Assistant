@@ -1,43 +1,18 @@
-{
-    # Global options – used by Let’s Encrypt
-    email ${env:LETSENCRYPT_EMAIL}
+# ── Global block — applies to every site below ──
+# ACME account contact email (required by the CA; usually Let's Encrypt).
+email youremail@domain.com
+
+# Obtain/renew certificates via Cloudflare DNS-01 challenge.
+# The token is read from the CLOUDFLARE_API_TOKEN env var in docker-compose.yml.
+# (Required if the caddy-cloudflare image does not auto-configure it.)
+acme_dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+
+# ── Open WebUI (public) ──
+pal.yourdomain.com {
+    reverse_proxy open-webui:8080
 }
 
-# ---------------------------------------------------------
-# 1️⃣  Matcher that *only matches* the IPs you want to allow
-# ---------------------------------------------------------
-@allowed {
-    remote_ip 203.0.113.5 203.0.113.6 192.168.1.0/24
-}
-
-# ---------------------------------------------------------
-# 2️⃣  Domain that hosts Open‑WebUI
-# ---------------------------------------------------------
-${env:PAL_DOMAIN} {
-    # 2.1  Only allow the IPs in @allowed
-    route @allowed {
-        reverse_proxy open-webui:8080
-    }
-
-    # 2.2  Everything else → 403
-    route {
-        respond 403 {
-            body "Forbidden – IP not on whitelist."
-        }
-    }
-}
-
-# ---------------------------------------------------------
-# 3️⃣  Domain that hosts n8n
-# ---------------------------------------------------------
-${env:AUTOMATION_DOMAIN} {
-    route @allowed {
-        reverse_proxy n8n:5678
-    }
-
-    route {
-        respond 403 {
-            body "Forbidden – IP not on whitelist."
-        }
-    }
+# ── Docling (document parsing, public) ──
+docling.yourdomain.com {
+    reverse_proxy docling-serve:5001
 }
